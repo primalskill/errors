@@ -6,3 +6,19 @@ Error module used internally at Primal Skill, inspired by [upspin/errors](https:
 ```bash
 go get -u github.com/primalskill/errors
 ```
+
+## Basic Usage
+
+```go
+package main
+
+import (
+  "fmt"
+  "github.com/primalskill/errors"
+)
+
+func main() {
+  err := errors.E("this is an error")
+  fmt.Printf("%s", err.Error())
+}
+```
