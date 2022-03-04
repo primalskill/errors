@@ -2,8 +2,8 @@ package errors
 
 import (
 	"errors"
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestErrors(t *testing.T) {
@@ -93,7 +93,6 @@ func hasMetaOnError(t *testing.T) {
 	}
 }
 
-
 func returnEmptyMeta(t *testing.T) {
 	e := errors.New("not goerror")
 	m := GetMeta(e)
@@ -142,10 +141,9 @@ func unwrapAllErrors(t *testing.T) {
 		}
 	}
 
-
 	errs = UnwrapAll(nil)
 	if len(errs) > 0 {
-		t.Fatalf("It should return empty slice on nil error, got: %+v", errs)	
+		t.Fatalf("It should return empty slice on nil error, got: %+v", errs)
 	}
-	
+
 }

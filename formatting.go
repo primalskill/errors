@@ -31,7 +31,7 @@ func (e *Error) ErrorFull() string {
 
 // String returns Stack in FilePath:FuncName:Line format.
 func (s *Stack) String() string {
-	
+
 	var ret strings.Builder
 	ret.WriteString(s.FilePath)
 	ret.WriteString(":")
@@ -42,7 +42,7 @@ func (s *Stack) String() string {
 	return ret.String()
 }
 
-// PrettyPrint returns Stack pretty formatted.
+// PrettyPrint returns Stack pretty formatted with pipes. Should be used in development.
 func (s *Stack) PrettyPrint() string {
 	return s.stackPrettyString(false)
 }
@@ -59,7 +59,7 @@ func (p Meta) String() string {
 		ret.WriteString(":")
 		ret.WriteString(v.(string))
 		i++
-	
+
 		if i < len(p) {
 			ret.WriteString(" ")
 		}
@@ -70,12 +70,10 @@ func (p Meta) String() string {
 	return ret.String()
 }
 
-// PrettyPrint returns Meta pretty formatted.
+// PrettyPrint returns Meta pretty formatted. Should be used in development.
 func (p *Meta) PrettyPrint() string {
 	return p.metaPrettyString(false)
 }
-
-
 
 func (p *Stack) stackPrettyString(isSub bool) string {
 	if len(p.FilePath) == 0 && len(p.FuncName) == 0 && p.Line == 0 {

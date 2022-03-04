@@ -16,10 +16,10 @@ func WithMeta(firstKey string, args ...interface{}) (m Meta) {
 	// Set the firstKey to the first value
 	if len(args) == 0 {
 		m[firstKey] = ""
-		
+
 		return
 	}
-	
+
 	m[firstKey] = args[0]
 
 	if len(args) == 1 {
@@ -46,7 +46,7 @@ func WithMeta(firstKey string, args ...interface{}) (m Meta) {
 	return
 }
 
-// Set will set key to value and returns Meta. If key exists it will be overwritten.
+// Set will set key to value and returns Meta. Same keys will be overwritten.
 func (p Meta) Set(key string, value interface{}) (m Meta) {
 	p[key] = value
 	return p

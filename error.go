@@ -45,7 +45,7 @@ func HasMeta(err error) bool {
 	if !ok {
 		return false
 	}
-	
+
 	if len(ee.Meta) == 0 {
 		return false
 	}
@@ -67,7 +67,7 @@ func UnwrapAll(err error) (errs []error) {
 		}
 
 		errs = append(errs, recErr)
-		
+
 		return rec(Unwrap(recErr))
 	}
 

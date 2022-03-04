@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/primalskill/errors"
 )
+
 func ExampleE() {
 	err := errors.E("this is an error")
 	fmt.Println(err.Error())
@@ -15,7 +16,7 @@ func ExampleE_meta() {
 
 	// err will carry a Meta map.
 	err := errors.E("this is an error with meta", errors.WithMeta("myKey", "value_testing"))
-	
+
 	var e *errors.Error
 	errors.As(err, &e)
 
@@ -54,15 +55,13 @@ func ExampleError_ErrorFull() {
 
 	// Output:
 	// my error
-  //   |- Stack:
-  //     |- File Path: /Users/georgefekete/Projects/goprograms/errors/example_test.go
-  //     |- Function Name: ExampleError_ErrorFull
-  //     |- Line Number: 48
-  //   |- Meta:
-  //     |- key: value
+	//   |- Stack:
+	//     |- File Path: /Users/georgefekete/Projects/goprograms/errors/example_test.go
+	//     |- Function Name: ExampleError_ErrorFull
+	//     |- Line Number: 48
+	//   |- Meta:
+	//     |- key: value
 }
-
-
 
 func ExampleWithMeta() {
 	// Valid
@@ -82,6 +81,28 @@ func ExampleWithMeta() {
 func ExampleWithMeta_emptyValue() {
 	mValid := errors.WithMeta("key1", "value1", "key2")
 	fmt.Printf("%#v", mValid)
-
 }
 
+func ExampleMeta_Merge() {
+	m := errors.WithMeta("key1", "val1")
+	m = m.Merge("key2", "val2")
+
+	fmt.Printf("%#v", m)
+
+	// Output: errors.Meta{"key1":"val1", "key2":"val2"}
+}
+
+func ExampleStack_String() {
+	err := errors.E("my error")
+
+	var e *errors.Error
+	errors.As(err, &e)
+
+	fmt.Printf("%s", e.Stack.String())
+
+	// Output: /Users/georgefekete/Projects/goprograms/errors/example_test.go:ExampleStack_String:97
+}
+
+func ExampleStack_PrettyPrint() {
+
+}
