@@ -2,14 +2,31 @@ package errors
 
 import (
 	"runtime"
+	"strconv"
 	"strings"
 )
 
-// Stack represents an error stack.
+// Stack represents an error stack captuing the file path, function name and file line number where the error happened.
+// A stack is always attached to an error automatically.
 type Stack struct {
-	FilePath string `json:"path"`
-	FuncName string `json:"func"`
-	Line     int `json:"line"`
+	FilePath string
+	FuncName string
+	Line     int
+}
+
+func (s *Stack) MarshalJSON() ([]byte, error) {
+	var ret strings.Builder
+
+	ret.WriteString("{")
+	ret.WriteString("\"path\":\"")
+	ret.WriteString(s.FilePath)
+	ret.WriteString("\",\"func\":\"")
+	ret.WriteString(s.FuncName)
+	ret.WriteString("\",\"line\":")
+	ret.WriteString(strconv.Itoa(s.Line))
+	ret.WriteString("}")
+
+	return []byte(ret.String()), nil
 }
 
 // getStack will get the file path, function name and line number where the error happened.
