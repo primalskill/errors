@@ -7,7 +7,7 @@ import (
 func TestMeta(t *testing.T) {
 	t.Run("it should store meta map", storeMetaMap)
 	t.Run("it should store all keys and values", storeAllKeysValues)
-	t.Run("it should return empty map", returnEmptyMap)
+	t.Run("it should return empty value for first key", returnEmptyValueFirstKey)
 	t.Run("it should append empty string as value", emptyStringAsValue)
 	t.Run("it should skip non-string key in args", skipNonStringKey)
 	t.Run("it should set a key/value pair in the map", setKeyValuePair)
@@ -40,11 +40,16 @@ func storeAllKeysValues(t *testing.T) {
 	}
 }
 
-func returnEmptyMap(t *testing.T) {
+func returnEmptyValueFirstKey(t *testing.T) {
 	m := WithMeta("key1")
 
-	if len(m) != 0 {
-		t.Fatalf("WithMeta(), found non-empty map when args are empty.")
+	v, ok := m["key1"]
+	if ok == false {
+		t.Fatalf("WithMeta() key1 not found.")
+	}
+
+	if len(v.(string)) > 0 {
+		t.Fatalf("WithMeta(), key1 value is not empty.")
 	}
 }
 
