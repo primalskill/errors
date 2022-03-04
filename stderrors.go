@@ -1,9 +1,10 @@
-// Forwarding the standard errors module functions.
 package errors
 
 import (
 	"errors"
 )
+
+// Forwarding the standard errors module functions.
 
 // Unwrap returns the result of calling the Unwrap method on err, if err's
 // type contains an Unwrap method returning error.

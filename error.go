@@ -7,7 +7,8 @@ type Error struct {
 	Meta  Meta
 }
 
-// E will return a new custom error.
+// E a new error and sets the required msg argument as the error message. Additional arguments like a Meta map or another error can be passed
+// into the function that will be set on the error.
 func E(msg string, args ...interface{}) error {
 	e := &Error{}
 	e.Msg = msg
@@ -26,7 +27,7 @@ func E(msg string, args ...interface{}) error {
 	return e
 }
 
-// GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type Error.
+// GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type errors.Error.
 func GetMeta(err error) Meta {
 	eerr, ok := err.(*Error)
 
@@ -82,7 +83,7 @@ func Flatten(err error) (ret []Error) {
 }
 */
 
-// Unwrap returns the error one level deep otherwise nil.
+// Unwrap returns the error one level deep otherwise nil. This is a proxy method for Unwrap().
 func (e *Error) Unwrap() error {
 	return e.Err
 }

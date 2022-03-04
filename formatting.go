@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Error returns the error message and satisfies the Error interface.
+// Error returns the error message and satisfies the stdlib Error interface.
 func (e *Error) Error() string {
 	return e.Msg
 }
