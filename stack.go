@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"runtime"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ type Stack struct {
 	Line     int
 }
 
+// MarshalJSON satisfies the encoding/json Marshaler interface and generates valid JSON from  Stack struct s.
 func (s *Stack) MarshalJSON() ([]byte, error) {
 	var ret strings.Builder
 
@@ -27,6 +29,28 @@ func (s *Stack) MarshalJSON() ([]byte, error) {
 	ret.WriteString("}")
 
 	return []byte(ret.String()), nil
+}
+
+// UnmarshalJSON satisfies the encoding/json Unmarshaler interface and parses JSON into Stack struct s.
+func (s *Stack) UnmarshalJSON(data []byte) error {
+	type alias struct{
+		Path string `json:"path"`
+		Func string `json:"func"`
+		Line int    `json:"line"`
+	}
+
+	var ret alias
+
+	err := json.Unmarshal(data, &ret)
+	if err != nil {
+		return err
+	}
+
+	s.FilePath = ret.Path
+	s.FuncName = ret.Func
+	s.Line = ret.Line
+
+	return nil
 }
 
 // getStack will get the file path, function name and line number where the error happened.
