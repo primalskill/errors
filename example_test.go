@@ -52,15 +52,6 @@ func ExampleError_ErrorFull() {
 	errors.As(err, &e)
 
 	fmt.Printf("%s", e.ErrorFull())
-
-	// Output:
-	// my error
-	//   |- Stack:
-	//     |- File Path: /Users/georgefekete/Projects/goprograms/errors/example_test.go
-	//     |- Function Name: ExampleError_ErrorFull
-	//     |- Line Number: 48
-	//   |- Meta:
-	//     |- key: value
 }
 
 func ExampleWithMeta() {
@@ -99,10 +90,13 @@ func ExampleStack_String() {
 	errors.As(err, &e)
 
 	fmt.Printf("%s", e.Stack.String())
-
-	// Output: /Users/georgefekete/Projects/goprograms/errors/example_test.go:ExampleStack_String:97
 }
 
 func ExampleStack_PrettyPrint() {
+	err := errors.E("my error")
 
+	var e *errors.Error
+	errors.As(err, &e)
+
+	fmt.Printf("%s", e.Stack.PrettyPrint())
 }
