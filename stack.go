@@ -2,6 +2,7 @@ package errors
 
 import (
 	"encoding/json"
+	"fmt"
 	"runtime"
 	"strconv"
 	"strings"
@@ -33,6 +34,14 @@ func (s *Stack) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON satisfies the encoding/json Unmarshaler interface and parses JSON into Stack struct s.
 func (s *Stack) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return nil
+	}
+
+	if s == nil {
+		return fmt.Errorf("nil receiver passed to UnmarshalJSON")
+	}
+
 	type alias struct{
 		Path string `json:"path"`
 		Func string `json:"func"`

@@ -14,6 +14,7 @@ type jsonCmp struct {
 func TestStack(t *testing.T) {
 	t.Run("it should marshal JSON", marshalJSON)
 	t.Run("it should unmarshal JSON", unmarshalJSON)
+	t.Run("it should unmarhsal null JSON", unmarshalNullJSON)
 }
 
 func marshalJSON(t *testing.T) {
@@ -71,4 +72,18 @@ func unmarshalJSON(t *testing.T) {
 	if e.Stack.Line != 10 {
 		t.Fatalf("UnmarshalJSON line mismatch, expected: 10, got: %d", e.Stack.Line)
 	}
+}
+
+
+func unmarshalNullJSON(t *testing.T) {
+	
+	err := E("test error")
+	var e *Error
+	As(err, &e)
+
+	uErr := e.Stack.UnmarshalJSON([]byte("null"))
+	if uErr != nil {
+		t.Fatalf("Cannot unmarshal JSON into Stack, got error: %s", uErr.Error())
+	}
+
 }
