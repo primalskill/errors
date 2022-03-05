@@ -29,7 +29,7 @@ func (e *Error) ErrorFull() string {
 	return s.String()
 }
 
-// String returns Stack in FilePath:FuncName:Line format.
+// String returns Stack in FilePath:FuncName:Line format and satisfies the fmt.Stringer interface.
 func (s *Stack) String() string {
 
 	var ret strings.Builder
@@ -47,7 +47,7 @@ func (s *Stack) PrettyPrint() string {
 	return s.stackPrettyString(false)
 }
 
-// String returns Meta in [key1:val1 key2:val2 ...] format.
+// String returns Meta in [key1:val1 key2:val2 ...] format and satisfies the fmt.Stringer interface.
 func (p Meta) String() string {
 	var ret strings.Builder
 
