@@ -15,6 +15,7 @@ func TestErrors(t *testing.T) {
 	t.Run("it should test if Meta is stored on error", hasMetaOnError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
 	t.Run("it should unwrap all embedded errors", unwrapAllErrors)
+	t.Run("it should flatten all embedded errors", flattenAllErrors)
 }
 
 func storeMsg(t *testing.T) {
@@ -103,6 +104,13 @@ func returnEmptyMeta(t *testing.T) {
 }
 
 func unwrapAllErrors(t *testing.T) {
+
+	// nil error
+	errs := UnwrapAll(nil)
+	if len(errs) > 0 {
+		t.Fatalf("It should return an empty slice on nil error, got: %+v", errs)
+	}
+
 	m1 := WithMeta("key1", "val1")
 	m2 := WithMeta("key2", "val2")
 	m3 := WithMeta("key3", "val3")
@@ -111,7 +119,8 @@ func unwrapAllErrors(t *testing.T) {
 	e1 := E("e1", e0, m1)
 	e2 := E("e2", e1, m2)
 	e3 := E("e3", e2, m3)
-	errs := UnwrapAll(e3)
+	
+	errs = UnwrapAll(e3)
 
 	if len(errs) != 4 {
 		t.Fatalf("Returned errs length mismatch, expected: 4, got: %d", len(errs))
@@ -143,7 +152,46 @@ func unwrapAllErrors(t *testing.T) {
 
 	errs = UnwrapAll(nil)
 	if len(errs) > 0 {
-		t.Fatalf("It should return empty slice on nil error, got: %+v", errs)
+		t.Fatalf("It should return an empty slice on nil error, got: %+v", errs)
+	}
+}
+
+func flattenAllErrors( t *testing.T) {
+	
+	// nil error
+	errs := Flatten(nil)
+
+	if len(errs) > 0 {
+		t.Fatalf("It should return an empty slice on nil error, got: %+v", errs)
 	}
 
+	m1 := WithMeta("key1", "val1")
+	m2 := WithMeta("key2", "val2")
+
+	e0 := errors.New("not goerror")
+	e1 := E("e1", e0, m1)
+	e2 := E("e2", e1, m2)
+	
+	errs = Flatten(e2)
+
+	for i, err := range errs {
+
+		// Metas
+		if i == 0 && reflect.DeepEqual(err.Meta, m2) == false {
+			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m2, err.Meta)
+		} else if i == 1 && reflect.DeepEqual(err.Meta, m1) == false {
+			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m1, err.Meta)
+		} else if i == 2 && len(err.Meta) > 0 {
+			t.Fatalf("Meta length on last error is not empty, got: %+v", err.Meta)
+		}
+
+		// Messages
+		if i == 0 && err.Error() != "e2" {
+			t.Fatalf("Error message mismatch, expected: e2, got: %s", err.Error())
+		} else if i == 1 && err.Error() != "e1" {
+			t.Fatalf("Error message mismatch, expected: e1, got: %s", err.Error())
+		} else if i == 3 && err.Error() != "not goerror" {
+			t.Fatalf("Error message mismatch, expected: not goerror, got: %s", err.Error())
+		}
+	}
 }

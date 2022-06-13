@@ -76,12 +76,32 @@ func UnwrapAll(err error) (errs []error) {
 	return
 }
 
-/*
+
 // Flatten returns a slice of Error from embedded err.
 func Flatten(err error) (ret []Error) {
+	if err == nil {
+		return
+	}
+
+	errs := UnwrapAll(err)
+
+	for _, e := range errs {
+		var pskE *Error
+		is := As(e, &pskE)
+
+		if is == true {
+			ret = append(ret, *pskE)	
+			continue
+		} 
+
+		var regErr Error
+		regErr.Err = e
+		ret = append(ret, regErr)
+	}
+
 	return
 }
-*/
+
 
 // Unwrap returns the error one level deep otherwise nil. This is a proxy method for Unwrap().
 func (e *Error) Unwrap() error {
