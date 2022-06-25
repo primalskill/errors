@@ -2,7 +2,6 @@ package errors
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -43,24 +42,6 @@ func (e *Error) ErrorFull() string {
 	return s.String()
 }
 
-// String returns Stack in FilePath:FuncName:Line format and satisfies the fmt.Stringer interface.
-func (s *Stack) String() string {
-
-	var ret strings.Builder
-	ret.WriteString(s.FilePath)
-	ret.WriteString(":")
-	ret.WriteString(s.FuncName)
-	ret.WriteString(":")
-	ret.WriteString(strconv.Itoa(s.Line))
-
-	return ret.String()
-}
-
-// PrettyPrint returns Stack pretty formatted with pipes. Should be used in development.
-func (s *Stack) PrettyPrint() string {
-	return s.stackPrettyString(false)
-}
-
 // String returns Meta in [key1:val1 key2:val2 ...] format and satisfies the fmt.Stringer interface.
 func (p Meta) String() string {
 	var ret strings.Builder
@@ -90,41 +71,16 @@ func (p *Meta) PrettyPrint() string {
 }
 
 func (p *Stack) stackPrettyString(isSub bool) string {
-	if len(p.FilePath) == 0 && len(p.FuncName) == 0 && p.Line == 0 {
-		return ""
-	}
-
 	padding := ""
 	pipe := ""
-	subPadding := "  "
-	subPipe := "|- "
 
 	if isSub {
 		padding = "  "
 		pipe = "|- "
 	}
 
-	var s strings.Builder
-	s.WriteString(fmt.Sprintf("\n%s%sStack:\n", padding, pipe))
-
-	if len(p.FilePath) > 0 {
-		s.WriteString(fmt.Sprintf("%s%s%sFile Path: ", padding, subPadding, subPipe))
-		s.WriteString(p.FilePath)
-		s.WriteString("\n")
-	}
-
-	if len(p.FuncName) > 0 {
-		s.WriteString(fmt.Sprintf("%s%s%sFunction Name: ", padding, subPadding, subPipe))
-		s.WriteString(p.FuncName)
-		s.WriteString("\n")
-	}
-
-	if p.Line > 0 {
-		s.WriteString(fmt.Sprintf("%s%s%sLine Number: ", padding, subPadding, subPipe))
-		s.WriteString(strconv.Itoa(p.Line))
-	}
-
-	return s.String()
+	
+	return fmt.Sprintf("\n%s%sStack: %s", padding, pipe, string(*p))	
 }
 
 func (p Meta) metaPrettyString(isSub bool) string {

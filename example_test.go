@@ -87,21 +87,3 @@ func ExampleMeta_Merge() {
 
 	// Output: errors.Meta{"key1":"val1", "key2":"val2"}
 }
-
-func ExampleStack_String() {
-	err := errors.E("my error")
-
-	var e *errors.Error
-	errors.As(err, &e)
-
-	fmt.Printf("%s", e.Stack.String())
-}
-
-func ExampleStack_PrettyPrint() {
-	err := errors.E("my error")
-
-	var e *errors.Error
-	errors.As(err, &e)
-
-	fmt.Printf("%s", e.Stack.PrettyPrint())
-}

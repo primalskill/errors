@@ -40,6 +40,29 @@ func GetMeta(err error) (Meta, bool) {
 }
 
 
+// MergeMeta will merge m to err.Meta if err is of type errors.Error and returns TRUE if the operation was succesful,
+// FALSE otherwise.
+func MergeMeta(err error, m Meta) (error, bool) {
+	var e *Error
+
+	isError := As(err, &e)
+	if isError == false {
+		return err, false
+	}
+
+	if e.Meta == nil {
+		e.Meta = make(Meta, 1)
+	}
+
+
+	for k, v := range m {
+		e.Meta.Set(k, v)
+	}
+
+	return e, true
+}
+
+
 // UnwrapAll returns err unwrapped into a slice of errors.
 func UnwrapAll(err error) (errs []error) {
 	if err == nil {

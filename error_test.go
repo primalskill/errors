@@ -13,6 +13,7 @@ func TestErrors(t *testing.T) {
 	t.Run("it should wrap errors", wrapErrors)
 	t.Run("it should get meta from error", getMetaFromError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
+	t.Run("it should merge Meta to error", mergeMetaToError)
 	t.Run("it should unwrap all embedded errors", unwrapAllErrors)
 	t.Run("it should flatten all embedded errors", flattenAllErrors)
 }
@@ -39,16 +40,8 @@ func storeStack(t *testing.T) {
 	e := E("test error")
 	ee := e.(*Error)
 
-	if len(ee.Stack.FilePath) == 0 {
-		t.Fatalf("E() should store the stack, FilePath is empty.")
-	}
-
-	if len(ee.Stack.FuncName) == 0 {
-		t.Fatalf("E() should store the stack, FuncName is empty.")
-	}
-
-	if ee.Stack.Line == 0 {
-		t.Fatalf("E() should store the stack, Line is zero.")
+	if len(string(ee.Stack)) == 0 {
+		t.Fatalf("E() should store the stack, got empty string.")
 	}
 }
 
@@ -85,6 +78,47 @@ func returnEmptyMeta(t *testing.T) {
 		t.Fatalf("GetMeta() returned Meta map is not empty.")
 	}
 }
+
+func mergeMetaToError(t *testing.T) {
+
+	// Test regular meta merge
+	err := E("test error")
+	m := WithMeta("metaKey1", "metaVal1")
+
+	MergeMeta(err, m)
+
+	mCmp, has := GetMeta(err)
+	if has == false {
+		t.Fatalf("err should have a Meta map, got: %+v", mCmp)
+	}
+
+	if reflect.DeepEqual(m, mCmp) == false {
+		t.Fatalf("err should have a merged Meta map\n - expected: %+v\n - got: %+v", m, mCmp)
+	}
+	
+	// Test meta merge when err already has an existing meta set
+	err = E("test error with meta", WithMeta("key1", "val1"))
+	MergeMeta(err, m)
+
+	mCmp, has = GetMeta(err)
+	if has == false {
+		t.Fatalf("err with meta should have a Meta map, got: %+v", mCmp)
+	}
+
+	mRet := WithMeta("key1", "val1", "metaKey1", "metaVal1")
+
+	if reflect.DeepEqual(mRet, mCmp) == false {
+		t.Fatalf("err with meta should have a merged Meta map\n - expected: %+v\n - got: %+v", mRet, mCmp)
+	}
+
+	// Test meta merge to reular error
+	err = errors.New("regular error")
+	_, is := MergeMeta(err, m)
+	if is == true {
+		t.Fatalf("MergeMeta should fail when err is a regular error")
+	}
+}
+ 
 
 func unwrapAllErrors(t *testing.T) {
 
