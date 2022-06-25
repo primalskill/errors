@@ -12,7 +12,6 @@ func TestErrors(t *testing.T) {
 	t.Run("it should store stack", storeStack)
 	t.Run("it should wrap errors", wrapErrors)
 	t.Run("it should get meta from error", getMetaFromError)
-	t.Run("it should test if Meta is stored on error", hasMetaOnError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
 	t.Run("it should unwrap all embedded errors", unwrapAllErrors)
 	t.Run("it should flatten all embedded errors", flattenAllErrors)
@@ -66,7 +65,7 @@ func wrapErrors(t *testing.T) {
 
 func getMetaFromError(t *testing.T) {
 	e := E("test error", WithMeta("key1", "val1"))
-	m := GetMeta(e)
+	m, _ := GetMeta(e)
 
 	v, has := m["key1"]
 	if has != true {
@@ -78,25 +77,9 @@ func getMetaFromError(t *testing.T) {
 	}
 }
 
-func hasMetaOnError(t *testing.T) {
-	e := E("test error", WithMeta("key1", "val1"))
-	has := HasMeta(e)
-
-	if has == false {
-		t.Fatalf("HasMeta returns wrong bool, expected: true, got: false")
-	}
-
-	e = E("test error")
-	has = HasMeta(e)
-
-	if has == true {
-		t.Fatalf("HasMeta returns wrong bool, expected: false, got: true")
-	}
-}
-
 func returnEmptyMeta(t *testing.T) {
 	e := errors.New("not goerror")
-	m := GetMeta(e)
+	m, _ := GetMeta(e)
 
 	if len(m) != 0 {
 		t.Fatalf("GetMeta() returned Meta map is not empty.")
@@ -127,7 +110,7 @@ func unwrapAllErrors(t *testing.T) {
 	}
 
 	for i, err := range errs {
-		m := GetMeta(err)
+		m, has := GetMeta(err)
 
 		if i == 0 && reflect.DeepEqual(m, m3) == false {
 			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m3, m)
@@ -135,8 +118,8 @@ func unwrapAllErrors(t *testing.T) {
 			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m2, m)
 		} else if i == 2 && reflect.DeepEqual(m, m1) == false {
 			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m1, m)
-		} else if i == 3 && HasMeta(err) == true {
-			t.Fatalf("Last error shouldn't have Meta, got: %+v", GetMeta(err))
+		} else if i == 3 && has == true {
+			t.Fatalf("Last error shouldn't have Meta, got: %+v", m)
 		}
 
 		if i == 0 && err.Error() != "e3" {

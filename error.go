@@ -27,31 +27,18 @@ func E(msg string, args ...interface{}) error {
 	return e
 }
 
-// GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type errors.Error.
-func GetMeta(err error) Meta {
+// GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type
+// errors.Error. The second returned argument is TRUE if the err has a Meta, FALSE otherwise.
+func GetMeta(err error) (Meta, bool) {
 	eerr, ok := err.(*Error)
 
 	if !ok {
-		return make(Meta, 1)
+		return make(Meta, 1), false
 	}
 
-	return eerr.Meta
+	return eerr.Meta, true
 }
 
-// HasMeta returns true if the error has Meta attached to it, otherwise false.
-func HasMeta(err error) bool {
-	ee, ok := err.(*Error)
-
-	if !ok {
-		return false
-	}
-
-	if len(ee.Meta) == 0 {
-		return false
-	}
-
-	return true
-}
 
 // UnwrapAll returns err unwrapped into a slice of errors.
 func UnwrapAll(err error) (errs []error) {
