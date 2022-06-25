@@ -11,6 +11,20 @@ func (e *Error) Error() string {
 	return e.Msg
 }
 
+// ErrorFull returns the error string and any additional meta data and stack or an empty string if err
+// is not of type Error. It doesn't unwrap the error.
+func ErrorFull(err error) string {
+	var e *Error
+	isError := As(err, &e)
+
+	if isError == false {
+		return ""
+	}
+
+	return e.ErrorFull()
+}
+
+
 // ErrorFull returns the error string and any additional meta data and stack. It doesn't unwrap the error.
 func (e *Error) ErrorFull() string {
 	var s strings.Builder
