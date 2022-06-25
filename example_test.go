@@ -47,7 +47,7 @@ func ExampleUnwrapAll() {
 
 func ExampleErrorFull() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))
-	fmt.Printf("%s", ErrorFull(err))
+	fmt.Printf("%s", errors.ErrorFull(err))
 }
 
 func ExampleError_ErrorFull() {
