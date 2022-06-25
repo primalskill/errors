@@ -112,10 +112,10 @@ func mergeMaps(t *testing.T) {
 
 	v, has := m["key2"]
 	if has != true {
-		t.Fatalf("Set() key2 is not found.")
+		t.Fatalf("Merge() key2 is not found.")
 	}
 
 	if v != "val2" {
-		t.Fatalf("Set(), wrong value for key2, expected: 'val2', got: %+v", v)
+		t.Fatalf("Merge(), wrong value for key2, expected: 'val2', got: %+v", v)
 	}
 }
