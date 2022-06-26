@@ -12,6 +12,7 @@ func TestErrors(t *testing.T) {
 	t.Run("it should store stack", storeStack)
 	t.Run("it should wrap errors", wrapErrors)
 	t.Run("it should add args on existing error", withErrors)
+	t.Run("With() should return a new error value ", withErrorReturnNew)
 	t.Run("it should get meta from error", getMetaFromError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
 	t.Run("it should merge Meta to error", mergeMetaToError)
@@ -106,6 +107,53 @@ func withErrors(t *testing.T) {
 	if ee_wRegErr.err == nil {
 		t.Fatalf("With() should overwrite arguments on converted regular error")
 	}
+}
+
+func withErrorReturnNew(t *testing.T) {
+	m0 := WithMeta("e0k1", "e0v1")
+	m1 := WithMeta("e1k1", "e1v1", "e1k2", "e1v2")
+
+	e0 := E("e0 error", m0)
+	e1 := With(e0, m1)
+
+	if Is(e1, e0) == false {
+		t.Fatalf("e1 and e0 should be identical when using With()")
+	}
+
+	uErr := errors.New("some error")
+	if Is(e1, uErr) == true {
+		t.Fatalf("e1 and uErr shouldn't be identical when using With()")
+	}
+
+	if Is(e0, uErr) == true {
+		t.Fatalf("e0 and uErr shouldn't be identical when using With()")
+	}
+
+	
+
+
+
+
+
+	// t.Logf("\n\n\n ----original----\n%s\n\n\n----with----\n%s\n\n\n", PrettyPrint(e0), PrettyPrint(e1))
+	// t.Logf("\n\n\n is errr----- %+v\n\n\n", Is(e1, e0))
+
+	// e0 := errors.New("regular error")
+	// e1 := With(e0, WithMeta("k1", "v1"))
+
+	// t.Logf("\n\n\n ----original----\n%s\n\n\n----with----\n%s\n\n\n", PrettyPrint(e0), PrettyPrint(e1))
+
+	//e11 := errors.New("blahj error")
+	// e0 := errors.New("regular error")
+	// e1 := E("e1 error", e0, WithMeta("e1k1", "e1v1"))
+	// e2 := E("e2 error", e1, WithMeta("e2k1", "e2v1"))
+	// e3 := With(e2, WithMeta("e3k1", "e3v1"))
+
+	// t.Logf("\n\n\n%+v\n\n\n", PrettyPrint(e3))
+	// t.Logf("\n\n\n%+v\n\n\n", Is(e3, e2))
+
+
+
 }
 
 

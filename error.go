@@ -1,6 +1,11 @@
 package errors
 
+import (
+	stderrors "errors"
+)
+
 type Error struct {
+	withFlag error
 	err   error
 	Msg   string
 	Stack Stack
@@ -8,7 +13,7 @@ type Error struct {
 }
 
 // parseArgTypes parses the arguments passed to the function
-func parseArgTypes(err *Error, args ...interface{})  {
+func (err *Error) parseArgTypes(args ...interface{})  {
 	for _, arg := range args {
 		switch arg := arg.(type) {
 
@@ -17,7 +22,9 @@ func parseArgTypes(err *Error, args ...interface{})  {
 			if len(err.Meta) == 0 {
 				err.Meta = arg
 			} else {
-				MergeMeta(err, arg)
+				for k, v := range arg {
+					err.Meta.Set(k, v)
+				}
 			}
 
 		case error:
@@ -34,7 +41,7 @@ func E(msg string, args ...interface{}) error {
 	e.Msg = msg
 	e.Stack = getStack()
 
-	parseArgTypes(e, args...)
+	e.parseArgTypes(args...)
 
 	return e
 }
@@ -42,20 +49,37 @@ func E(msg string, args ...interface{}) error {
 // With adds args to err if err is of type Error, othwerwise it creates a new error of type Error and adds args
 // on that error. Passing in a regular error (not errors.Error) to the err argument will convert the error to
 // errors.Error therefore trying to compare errors with Is() will return FALSE.
-func With(err error, args ...interface{}) error {
-	var e *Error
+func With(err error, args ...interface{}) error {	
+	e := &Error{}
+	ec, is := err.(*Error)
 
-	s := As(err, &e)
-
-	if s == false {
-		e = &Error{}
+	if is == false {
+		// We're dealing with an error other than errors.Error
 		e.Msg = err.Error()
+	} else {
+		// We're dealing with error.Error, copy over the data
+
+		e.err = ec.err
+		e.Msg = ec.Msg
+
+		// If the original error have Meta, copy over onto the new error
+		if len(ec.Meta) > 0 {
+			e.Meta = make(Meta, 1)
+
+			for k, v := range ec.Meta {
+				e.Meta[k] = v
+			}
+		}		
 	}
+
+	// Set the withFlah to the original so the Is() and As() functions still have the correct behavior.
+	e.withFlag = err
 
 	// Overwrite the stack to where With() was called, otherwise stack will point to where err was instantiated.
 	e.Stack = getStack()
 
-	parseArgTypes(e, args...)
+	// Parse the args too
+	e.parseArgTypes(args...)
 
 	return e
 }
@@ -129,6 +153,22 @@ func Flatten(err error) (ret []Error) {
 	return
 }
 
+
+func (e Error) Is(target error) bool {
+	if stderrors.Is(e.withFlag, target) {
+		return true
+	}
+
+	return stderrors.Is(e.err, target)
+}
+
+func (e Error) As(target interface{}) bool {
+	if stderrors.As(e.withFlag, target) {
+		return true
+	}
+
+	return stderrors.As(e.err, target)
+}
 
 // Unwrap returns the error one level deep otherwise nil. This is a proxy method for Unwrap().
 func (e *Error) Unwrap() error {
