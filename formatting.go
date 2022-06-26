@@ -10,75 +10,45 @@ func (e *Error) Error() string {
 	return e.Msg
 }
 
-// ErrorFull returns the error string and any additional meta data and stack or an empty string if err
-// is not of type Error. It doesn't unwrap the error.
-func ErrorFull(err error) string {
+// PrettyPrint is a helper method to *Error.PrettyPrint. This should be used in development.
+func PrettyPrint(err error) string {
 	var e *Error
-	isError := As(err, &e)
+	is := As(err, &e)
 
-	if isError == false {
+	if is == false {
 		return ""
 	}
 
-	return e.ErrorFull()
+	return e.PrettyPrint()
 }
 
-func ErrorFullRec(err error) string {
+// PrettyPrint will recursively print all embedded errors including all information on the error it can found.
+// This should be used in development.
+func (e *Error) PrettyPrint() string {
 	var s strings.Builder
-	e := Flatten(err)
+	err := Flatten(e)
 
 	s.WriteString("\n")
 
-	for i, elem := range e {
-
-		if len(elem.Msg) == 0 {
-			elem.Msg = "[empty]"
+	for i, elem := range err {
+		if len(e.Msg) == 0 {
+			s.WriteString("[empty]")
+		} else {
+			s.WriteString(elem.Msg)
 		}
 
-		s.WriteString(elem.Msg)
+		s.WriteString(elem.Stack.stackPrettyString(true))
+		s.WriteString(elem.Meta.metaPrettyString(true))
 
-		if len(elem.Stack) > 0 {
-			s.WriteString("\n  |- Stack: ")
-			s.WriteString(string(elem.Stack))
-		}
-
-		if len(elem.Meta) > 0 {
-			s.WriteString("\n  |- Meta:")
-
-			for k := range elem.Meta {
-				s.WriteString("\n  |---|- ")
-				s.WriteString(fmt.Sprintf("%s: %+v", k, elem.Meta[k]))
-			}
-		}
-
-		if i < len(e) {
+		if i < len(err) {
 			s.WriteString("\n")
 		}
+		
 	}
 
 	return s.String()
 }
 
-
-
-
-// ErrorFull returns the error string and any additional meta data and stack. It doesn't unwrap the error.
-func (e *Error) ErrorFull() string {
-	var s strings.Builder
-
-	// Msg
-	if len(e.Msg) == 0 {
-		s.WriteString("[empty]")
-	} else {
-		s.WriteString(e.Msg)
-	}
-
-	s.WriteString(e.Stack.stackPrettyString(true))
-	s.WriteString(e.Meta.metaPrettyString(true))
-	s.WriteString("\n")
-
-	return s.String()
-}
 
 // String returns Meta in [key1:val1 key2:val2 ...] format and satisfies the fmt.Stringer interface.
 func (p Meta) String() string {
@@ -103,12 +73,11 @@ func (p Meta) String() string {
 	return ret.String()
 }
 
-// PrettyPrint returns Meta pretty formatted. Should be used in development.
-func (p *Meta) PrettyPrint() string {
-	return p.metaPrettyString(false)
-}
-
 func (p *Stack) stackPrettyString(isSub bool) string {
+	if len(string(*p)) == 0 {
+		return ""
+	}
+
 	padding := ""
 	pipe := ""
 
@@ -117,7 +86,6 @@ func (p *Stack) stackPrettyString(isSub bool) string {
 		pipe = "|- "
 	}
 
-	
 	return fmt.Sprintf("\n%s%sStack: %s", padding, pipe, string(*p))	
 }
 

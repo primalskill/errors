@@ -36,18 +36,19 @@ func ExampleUnwrap() {
 }
 
 
-func ExampleErrorFull() {
+func ExamplePrettyPrint() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))
-	fmt.Printf("%s", errors.ErrorFull(err))
+	fmt.Printf("%s", errors.PrettyPrint(err))
 }
 
-func ExampleError_ErrorFull() {
+
+func ExampleError_PrettyPrint() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))
 
 	var e *errors.Error
 	errors.As(err, &e)
 
-	fmt.Printf("%s", e.ErrorFull())
+	fmt.Printf("%s", e.PrettyPrint())
 }
 
 func ExampleWithMeta() {

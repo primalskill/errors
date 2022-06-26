@@ -34,7 +34,6 @@
 //    errors.As(err2, &ee)
 //
 //    fmt.Printf("%+v", ee.Meta) // outputs err2 Meta
-//    fmt.Printf("%s", ee.Stack.PrettyPrint()) // outputs the Error stack
 //
 //    m := errors.GetMeta(err2) // get the Meta with a helper func
 //    fmt.Printf("%+v", m) // outputs the Meta attached to err2
