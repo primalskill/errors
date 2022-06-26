@@ -1,11 +1,31 @@
 package errors
 
 type Error struct {
-	Err   error
+	err   error
 	Msg   string
 	Stack Stack
 	Meta  Meta
 }
+
+// parseArgTypes parses the arguments passed to the function
+func parseArgTypes(err *Error, args ...interface{})  {
+	for _, arg := range args {
+		switch arg := arg.(type) {
+
+		case Meta:
+			// Merge the meta into the existing map on the err
+			if len(err.Meta) == 0 {
+				err.Meta = arg
+			} else {
+				MergeMeta(err, arg)
+			}
+
+		case error:
+			err.err = arg
+		}
+	}
+}
+
 
 // E a new error and sets the required msg argument as the error message. Additional arguments like a Meta map or another error can be passed
 // into the function that will be set on the error.
@@ -14,18 +34,33 @@ func E(msg string, args ...interface{}) error {
 	e.Msg = msg
 	e.Stack = getStack()
 
-	// Parse the arguments passed to the function
-	for _, arg := range args {
-		switch arg := arg.(type) {
-		case Meta:
-			e.Meta = arg
-		case error:
-			e.Err = arg
-		}
-	}
+	parseArgTypes(e, args...)
 
 	return e
 }
+
+// With adds args to err if err is of type Error, othwerwise it creates a new error of type Error and adds args
+// on that error. Passing in a regular error (not errors.Error) to the err argument will convert the error to
+// errors.Error therefore trying to compare errors with Is() will return FALSE.
+func With(err error, args ...interface{}) error {
+	var e *Error
+
+	s := As(err, &e)
+
+	if s == false {
+		e = &Error{}
+		e.Msg = err.Error()
+	}
+
+	// Overwrite the stack to where With() was called, otherwise stack will point to where err was instantiated.
+	e.Stack = getStack()
+
+	parseArgTypes(e, args...)
+
+	return e
+}
+
+
 
 // GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type
 // errors.Error. The second returned argument is TRUE if the err has a Meta, FALSE otherwise.
@@ -63,50 +98,32 @@ func MergeMeta(err error, m Meta) (error, bool) {
 }
 
 
-// UnwrapAll returns err unwrapped into a slice of errors.
-func UnwrapAll(err error) (errs []error) {
-	if err == nil {
-		return
-	}
-
-	var rec func(err error) error
-
-	rec = func(recErr error) error {
-		if recErr == nil {
-			return nil
-		}
-
-		errs = append(errs, recErr)
-
-		return rec(Unwrap(recErr))
-	}
-
-	rec(err)
-
-	return
-}
-
-
 // Flatten returns a slice of Error from embedded err.
 func Flatten(err error) (ret []Error) {
 	if err == nil {
 		return
 	}
 
-	errs := UnwrapAll(err)
+	uErr := err
 
-	for _, e := range errs {
-		var pskE *Error
-		is := As(e, &pskE)
+	for ok := true; ok; ok = (uErr != nil) {
+		var e *Error
+		cOk := As(uErr, &e)
 
-		if is == true {
-			ret = append(ret, *pskE)	
+		if cOk == true {
+			ret = append(ret, *e)
+			uErr = Unwrap(uErr)
+
 			continue
-		} 
+		}
 
-		var regErr Error
-		regErr.Err = e
-		ret = append(ret, regErr)
+		// This is a regular error, convert it to errors.Error
+		var ee Error
+		ee.Msg = uErr.Error()
+		ee.err = uErr
+			
+		ret = append(ret, ee)
+		uErr = Unwrap(uErr)	
 	}
 
 	return
@@ -115,5 +132,5 @@ func Flatten(err error) (ret []Error) {
 
 // Unwrap returns the error one level deep otherwise nil. This is a proxy method for Unwrap().
 func (e *Error) Unwrap() error {
-	return e.Err
+	return e.err
 }

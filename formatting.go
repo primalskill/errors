@@ -23,6 +23,44 @@ func ErrorFull(err error) string {
 	return e.ErrorFull()
 }
 
+func ErrorFullRec(err error) string {
+	var s strings.Builder
+	e := Flatten(err)
+
+	s.WriteString("\n")
+
+	for i, elem := range e {
+
+		if len(elem.Msg) == 0 {
+			elem.Msg = "[empty]"
+		}
+
+		s.WriteString(elem.Msg)
+
+		if len(elem.Stack) > 0 {
+			s.WriteString("\n  |- Stack: ")
+			s.WriteString(string(elem.Stack))
+		}
+
+		if len(elem.Meta) > 0 {
+			s.WriteString("\n  |- Meta:")
+
+			for k := range elem.Meta {
+				s.WriteString("\n  |---|- ")
+				s.WriteString(fmt.Sprintf("%s: %+v", k, elem.Meta[k]))
+			}
+		}
+
+		if i < len(e) {
+			s.WriteString("\n")
+		}
+	}
+
+	return s.String()
+}
+
+
+
 
 // ErrorFull returns the error string and any additional meta data and stack. It doesn't unwrap the error.
 func (e *Error) ErrorFull() string {

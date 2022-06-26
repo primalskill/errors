@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"errors"
+	stderrors "errors"
 )
 
 // Forwarding the standard errors module functions.
@@ -10,7 +10,7 @@ import (
 // type contains an Unwrap method returning error.
 // Otherwise, Unwrap returns nil.
 func Unwrap(err error) error {
-	return errors.Unwrap(err)
+	return stderrors.Unwrap(err)
 }
 
 // Is reports whether any error in err's chain matches target.
@@ -29,7 +29,7 @@ func Unwrap(err error) error {
 // then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for
 // an example in the standard library.
 func Is(err, target error) bool {
-	return errors.Is(err, target)
+	return stderrors.Is(err, target)
 }
 
 // As finds the first error in err's chain that matches target, and if so, sets
@@ -49,5 +49,5 @@ func Is(err, target error) bool {
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
 func As(err error, target interface{}) bool {
-	return errors.As(err, target)
+	return stderrors.As(err, target)
 }

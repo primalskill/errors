@@ -35,15 +35,6 @@ func ExampleUnwrap() {
 	// Output: error 1
 }
 
-func ExampleUnwrapAll() {
-	err1 := errors.E("error1", errors.WithMeta("err1Key", "err1 value"))
-	err2 := errors.E("error2", err1, errors.WithMeta("err2Key", "err2 value"))
-
-	errs := errors.UnwrapAll(err2)
-	fmt.Printf("%+v", errs)
-
-	// Output: [error2 error1]
-}
 
 func ExampleErrorFull() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))

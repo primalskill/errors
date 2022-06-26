@@ -11,12 +11,16 @@ func TestErrors(t *testing.T) {
 	t.Run("it should store meta", storeMeta)
 	t.Run("it should store stack", storeStack)
 	t.Run("it should wrap errors", wrapErrors)
+	t.Run("it should add args on existing error", withErrors)
 	t.Run("it should get meta from error", getMetaFromError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
 	t.Run("it should merge Meta to error", mergeMetaToError)
-	t.Run("it should unwrap all embedded errors", unwrapAllErrors)
-	t.Run("it should flatten all embedded errors", flattenAllErrors)
+	t.Run("it should merge Meta to error with existing Meta", mergeMetaToErrorExistingMeta)
+	t.Run("it should fail merge Meta on regular error", mergeMetaToRegularError)
+	t.Run("it should flatten all embedded errors", flattenAllErrors)	
 }
+
+
 
 func storeMsg(t *testing.T) {
 	e := E("test error")
@@ -51,10 +55,59 @@ func wrapErrors(t *testing.T) {
 
 	ee2 := e2.(*Error)
 
-	if ee2.Err == nil {
+	if ee2.err == nil {
 		t.Fatalf("E() should wrap errors, the Err field is nil")
 	}
 }
+
+func withErrors(t *testing.T) {
+	e0 := E("error 0")
+	e1 := E("error 1")
+
+	e2 := With(e1, e0)
+
+	var ee2 *Error
+	As(e2, &ee2)
+
+	if ee2.Msg != "error 1" {
+		t.Fatalf("e2 should have message 'error 1', got: %s", ee2.Msg)
+	}
+
+	ee0 := ee2.Unwrap()
+
+	if ee0.Error() != "error 0" {
+		t.Fatalf("ee0 sould have message 'error 0', got: %s", ee0.Error())
+	}
+
+	// Merges Meta to existing error
+	e0 = E("error 0", WithMeta("k1", "v1"))
+	e1 = With(e0, WithMeta("k2", "v2"))
+
+	retMeta, _ := GetMeta(e1)
+	cmpMeta := WithMeta("k1", "v1", "k2", "v2")
+
+	if reflect.DeepEqual(retMeta, cmpMeta) == false {
+		t.Fatalf("With() should merge Meta to existing error, expected: %+v, got: %+v", cmpMeta, retMeta)
+	}
+
+	// It should convert regular error to errors.Error
+	regErr := errors.New("regular error")
+	someErr := E("some error")
+	
+	wRegErr := With(regErr, someErr)
+	
+	var ee_wRegErr *Error
+	As(wRegErr, &ee_wRegErr)
+
+	if ee_wRegErr.Msg != "regular error" {
+		t.Fatalf("With() should convert regular error to errors.Error")
+	}
+
+	if ee_wRegErr.err == nil {
+		t.Fatalf("With() should overwrite arguments on converted regular error")
+	}
+}
+
 
 func getMetaFromError(t *testing.T) {
 	e := E("test error", WithMeta("key1", "val1"))
@@ -79,9 +132,7 @@ func returnEmptyMeta(t *testing.T) {
 	}
 }
 
-func mergeMetaToError(t *testing.T) {
-
-	// Test regular meta merge
+func mergeMetaToError(t *testing.T) {	
 	err := E("test error")
 	m := WithMeta("metaKey1", "metaVal1")
 
@@ -95,12 +146,16 @@ func mergeMetaToError(t *testing.T) {
 	if reflect.DeepEqual(m, mCmp) == false {
 		t.Fatalf("err should have a merged Meta map\n - expected: %+v\n - got: %+v", m, mCmp)
 	}
-	
-	// Test meta merge when err already has an existing meta set
-	err = E("test error with meta", WithMeta("key1", "val1"))
+}
+
+
+func mergeMetaToErrorExistingMeta(t *testing.T) {		
+	err := E("test error with meta", WithMeta("key1", "val1"))
+	m := WithMeta("metaKey1", "metaVal1")
+
 	MergeMeta(err, m)
 
-	mCmp, has = GetMeta(err)
+	mCmp, has := GetMeta(err)
 	if has == false {
 		t.Fatalf("err with meta should have a Meta map, got: %+v", mCmp)
 	}
@@ -110,69 +165,18 @@ func mergeMetaToError(t *testing.T) {
 	if reflect.DeepEqual(mRet, mCmp) == false {
 		t.Fatalf("err with meta should have a merged Meta map\n - expected: %+v\n - got: %+v", mRet, mCmp)
 	}
+}
 
-	// Test meta merge to reular error
-	err = errors.New("regular error")
+func mergeMetaToRegularError(t *testing.T) {	
+	err := errors.New("regular error")
+	m := WithMeta("metaKey1", "metaVal1")
+
 	_, is := MergeMeta(err, m)
 	if is == true {
 		t.Fatalf("MergeMeta should fail when err is a regular error")
 	}
 }
  
-
-func unwrapAllErrors(t *testing.T) {
-
-	// nil error
-	errs := UnwrapAll(nil)
-	if len(errs) > 0 {
-		t.Fatalf("It should return an empty slice on nil error, got: %+v", errs)
-	}
-
-	m1 := WithMeta("key1", "val1")
-	m2 := WithMeta("key2", "val2")
-	m3 := WithMeta("key3", "val3")
-
-	e0 := errors.New("not goerror")
-	e1 := E("e1", e0, m1)
-	e2 := E("e2", e1, m2)
-	e3 := E("e3", e2, m3)
-	
-	errs = UnwrapAll(e3)
-
-	if len(errs) != 4 {
-		t.Fatalf("Returned errs length mismatch, expected: 4, got: %d", len(errs))
-	}
-
-	for i, err := range errs {
-		m, has := GetMeta(err)
-
-		if i == 0 && reflect.DeepEqual(m, m3) == false {
-			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m3, m)
-		} else if i == 1 && reflect.DeepEqual(m, m2) == false {
-			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m2, m)
-		} else if i == 2 && reflect.DeepEqual(m, m1) == false {
-			t.Fatalf("Meta is not preserved, expected: %+v, got: %+v", m1, m)
-		} else if i == 3 && has == true {
-			t.Fatalf("Last error shouldn't have Meta, got: %+v", m)
-		}
-
-		if i == 0 && err.Error() != "e3" {
-			t.Fatalf("Error message mismatch, expected: e3, got: %s", err.Error())
-		} else if i == 1 && err.Error() != "e2" {
-			t.Fatalf("Error message mismatch, expected: e2, got: %s", err.Error())
-		} else if i == 2 && err.Error() != "e1" {
-			t.Fatalf("Error message mismatch, expected: e1, got: %s", err.Error())
-		} else if i == 3 && err.Error() != "not goerror" {
-			t.Fatalf("Error message mismatch, expected: not goerror, got: %s", err.Error())
-		}
-	}
-
-	errs = UnwrapAll(nil)
-	if len(errs) > 0 {
-		t.Fatalf("It should return an empty slice on nil error, got: %+v", errs)
-	}
-}
-
 func flattenAllErrors( t *testing.T) {
 	
 	// nil error
