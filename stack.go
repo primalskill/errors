@@ -1,9 +1,15 @@
 package errors
 
 import (
+	"path"
 	"runtime"
 	"strconv"
 	"strings"
+)
+
+var (
+	_, rootFile, _, _ = runtime.Caller(0)
+	rootPath          = path.Dir(rootFile)
 )
 
 // Stack represents an error stack captuing the file path and line number where the error happened in the format
@@ -31,6 +37,9 @@ func getStack() (s Stack) {
 				if len(filePath) == 0 {
 					filePath = "unknown"
 				}
+
+				filePath = strings.TrimPrefix(filePath, rootPath)
+				filePath = strings.TrimPrefix(filePath, "/")
 
 				sb.WriteString(filePath)
 				sb.WriteString(":")
