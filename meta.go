@@ -5,13 +5,13 @@ import (
 )
 
 // Meta holds extra meta data around an error. Try adding simple values to the Meta map. Key order is not guaranteed.
-type Meta map[string]interface{}
+type Meta map[string]any
 
 // WithMeta accepts an even number of arguments representing key/value pairs. The first argument "firstKey" forces
 // the compiler to fail if the first argument is not a string. In "args" every odd argument must be of type string
 // which will be used as the Meta map key. If an odd argument is not a string that pair will be skipped.
-func WithMeta(firstKey string, args ...interface{}) (m Meta) {
-	m = make(map[string]interface{}, len(args)+1)
+func WithMeta(firstKey string, args ...any) (m Meta) {
+	m = make(map[string]any, len(args)+1)
 
 	// Set the firstKey to the first value
 	if len(args) == 0 {
@@ -47,13 +47,13 @@ func WithMeta(firstKey string, args ...interface{}) (m Meta) {
 }
 
 // Set will set key to value and returns Meta. Same keys will be overwritten.
-func (p Meta) Set(key string, value interface{}) (m Meta) {
+func (p Meta) Set(key string, value any) (m Meta) {
 	p[key] = value
 	return p
 }
 
 // Merge combines the arguments to an existing Meta and returns it. Existing keys will be overwritten.
-func (p Meta) Merge(firstKey string, args ...interface{}) (m Meta) {
+func (p Meta) Merge(firstKey string, args ...any) (m Meta) {
 	nm := WithMeta(firstKey, args...)
 
 	for k, v := range nm {
