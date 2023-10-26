@@ -14,7 +14,7 @@ TESTPATH := ./...
 # Filter down to testing only a portion of the tests by using a regex to match test names. Ex. TestUpsertUser
 # To test multiple at once separate with / ex: TestUpsertUser/TestGetUserIDsByToken
 # To test all use dot ex. .
-TESTREGEX := TestJSONMarshaling
+TESTREGEX := .
 
 # Running 'make cover' will create a test coverage report html file in the root of the source folder.
 COVERAGEREPORT := ${CURPATH}/coverage-report.html
