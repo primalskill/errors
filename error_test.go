@@ -11,8 +11,8 @@ func TestErrors(t *testing.T) {
 	t.Run("it should store meta", storeMeta)
 	t.Run("it should store stack", storeStack)
 	t.Run("it should wrap errors", wrapErrors)
-	t.Run("it should add args on existing error", withErrors)
-	t.Run("With() should return a new error value ", withErrorReturnNew)
+	t.Run("it should add args on existing error", mirrorErrors)
+	t.Run("M() should return a new error value ", mirrorErrorReturnNew)
 	t.Run("it should get meta from error", getMetaFromError)
 	t.Run("it should return empty Meta if error is not goerror.Error", returnEmptyMeta)
 	t.Run("it should merge Meta to error", mergeMetaToError)
@@ -59,11 +59,11 @@ func wrapErrors(t *testing.T) {
 	}
 }
 
-func withErrors(t *testing.T) {
+func mirrorErrors(t *testing.T) {
 	e0 := E("error 0")
 	e1 := E("error 1")
 
-	e2 := With(e1, e0)
+	e2 := M(e1, e0)
 
 	var ee2 *Error
 	As(e2, &ee2)
@@ -80,70 +80,63 @@ func withErrors(t *testing.T) {
 
 	// Merges Meta to existing error
 	e0 = E("error 0", WithMeta("k1", "v1"))
-	e1 = With(e0, WithMeta("k2", "v2"))
+	e1 = M(e0, WithMeta("k2", "v2"))
 
 	retMeta, _ := GetMeta(e1)
 	cmpMeta := WithMeta("k1", "v1", "k2", "v2")
 
 	if reflect.DeepEqual(retMeta, cmpMeta) == false {
-		t.Fatalf("With() should merge Meta to existing error, expected: %+v, got: %+v", cmpMeta, retMeta)
+		t.Fatalf("M() should merge Meta to existing error, expected: %+v, got: %+v", cmpMeta, retMeta)
 	}
 
 	// It should convert regular error to errors.Error
 	regErr := errors.New("regular error")
 	someErr := E("some error")
 
-	wRegErr := With(regErr, someErr)
+	wRegErr := M(regErr, someErr)
 
 	var ee_wRegErr *Error
 	As(wRegErr, &ee_wRegErr)
 
 	if ee_wRegErr.Msg != "regular error" {
-		t.Fatalf("With() should convert regular error to errors.Error")
+		t.Fatalf("M() should convert regular error to errors.Error")
 	}
 
 	if ee_wRegErr.err == nil {
-		t.Fatalf("With() should overwrite arguments on converted regular error")
+		t.Fatalf("M() should overwrite arguments on converted regular error")
 	}
 }
 
-func withErrorReturnNew(t *testing.T) {
+func mirrorErrorReturnNew(t *testing.T) {
 	m0 := WithMeta("e0k1", "e0v1")
 	m1 := WithMeta("e1k1", "e1v1", "e1k2", "e1v2")
 
 	e0 := E("e0 error", m0)
-	e1 := With(e0, m1)
+	e1 := M(e0, m1)
 
 	if Is(e1, e0) == false {
-		t.Fatalf("e1 and e0 should be identical when using With()")
+		t.Fatalf("e1 and e0 should be identical when using M()")
 	}
 
 	uErr := errors.New("some error")
 	if Is(e1, uErr) == true {
-		t.Fatalf("e1 and uErr shouldn't be identical when using With()")
+		t.Fatalf("e1 and uErr shouldn't be identical when using M()")
 	}
 
 	if Is(e0, uErr) == true {
-		t.Fatalf("e0 and uErr shouldn't be identical when using With()")
+		t.Fatalf("e0 and uErr shouldn't be identical when using M()")
 	}
 
-	// t.Logf("\n\n\n ----original----\n%s\n\n\n----with----\n%s\n\n\n", PrettyPrint(e0), PrettyPrint(e1))
-	// t.Logf("\n\n\n is errr----- %+v\n\n\n", Is(e1, e0))
+	// Preload regular error
+	mre1 := M(uErr)
+	if Is(mre1, uErr) == false {
+		t.Fatalf("mre1 and uErr should be identical when using M()")
+	}
 
-	// e0 := errors.New("regular error")
-	// e1 := With(e0, WithMeta("k1", "v1"))
-
-	// t.Logf("\n\n\n ----original----\n%s\n\n\n----with----\n%s\n\n\n", PrettyPrint(e0), PrettyPrint(e1))
-
-	//e11 := errors.New("blahj error")
-	// e0 := errors.New("regular error")
-	// e1 := E("e1 error", e0, WithMeta("e1k1", "e1v1"))
-	// e2 := E("e2 error", e1, WithMeta("e2k1", "e2v1"))
-	// e3 := With(e2, WithMeta("e3k1", "e3v1"))
-
-	// t.Logf("\n\n\n%+v\n\n\n", PrettyPrint(e3))
-	// t.Logf("\n\n\n%+v\n\n\n", Is(e3, e2))
-
+	mre2 := E("test err", mre1)
+	if Is(mre2, uErr) == false {
+		t.Fatalf("mre2 and uErr should be identical when using M()")
+	}
 }
 
 func getMetaFromError(t *testing.T) {

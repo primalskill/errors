@@ -13,7 +13,7 @@ type Error struct {
 }
 
 // parseArgTypes parses the arguments passed to the function
-func (err *Error) parseArgTypes(args ...interface{}) {
+func (err *Error) parseArgTypes(args ...any) {
 	for _, arg := range args {
 		switch arg := arg.(type) {
 
@@ -35,7 +35,7 @@ func (err *Error) parseArgTypes(args ...interface{}) {
 
 // E return a new error and sets the required msg argument as the error message. Additional arguments like a Meta map or another error can be passed
 // into the function that will be set on the error.
-func E(msg string, args ...interface{}) error {
+func E(msg string, args ...any) error {
 	e := &Error{}
 	e.Msg = msg
 	e.Stack = getStack()
@@ -45,10 +45,9 @@ func E(msg string, args ...interface{}) error {
 	return e
 }
 
-// With adds args to err if err is of type Error, othwerwise it creates a new error of type Error and adds args
-// on that error. Passing in a regular error (not errors.Error) to the err argument will convert the error to
-// errors.Error therefore trying to compare errors with Is() will return FALSE.
-func With(err error, args ...interface{}) error {
+// M preloads err with all its Meta and wrapped errors if err is of type Error, otherwise it creates a new error of type Error and
+// adds args on it. Passing in a regular error as err in the argument converts err to Error.
+func M(err error, args ...any) error {
 	e := &Error{}
 	ec, is := err.(*Error)
 
@@ -81,6 +80,11 @@ func With(err error, args ...interface{}) error {
 	e.parseArgTypes(args...)
 
 	return e
+}
+
+// With is deprecated, see M. It is kept for backwards compatibility.
+func With(err error, args ...any) error {
+	return M(err, args...)
 }
 
 // GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type
@@ -155,7 +159,7 @@ func (e Error) Is(target error) bool {
 	return stderrors.Is(e.err, target)
 }
 
-func (e Error) As(target interface{}) bool {
+func (e Error) As(target any) bool {
 	if stderrors.As(e.withFlag, target) {
 		return true
 	}
