@@ -18,10 +18,8 @@ func TestErrors(t *testing.T) {
 	t.Run("it should merge Meta to error", mergeMetaToError)
 	t.Run("it should merge Meta to error with existing Meta", mergeMetaToErrorExistingMeta)
 	t.Run("it should fail merge Meta on regular error", mergeMetaToRegularError)
-	t.Run("it should flatten all embedded errors", flattenAllErrors)	
+	t.Run("it should flatten all embedded errors", flattenAllErrors)
 }
-
-
 
 func storeMsg(t *testing.T) {
 	e := E("test error")
@@ -94,9 +92,9 @@ func withErrors(t *testing.T) {
 	// It should convert regular error to errors.Error
 	regErr := errors.New("regular error")
 	someErr := E("some error")
-	
+
 	wRegErr := With(regErr, someErr)
-	
+
 	var ee_wRegErr *Error
 	As(wRegErr, &ee_wRegErr)
 
@@ -129,12 +127,6 @@ func withErrorReturnNew(t *testing.T) {
 		t.Fatalf("e0 and uErr shouldn't be identical when using With()")
 	}
 
-	
-
-
-
-
-
 	// t.Logf("\n\n\n ----original----\n%s\n\n\n----with----\n%s\n\n\n", PrettyPrint(e0), PrettyPrint(e1))
 	// t.Logf("\n\n\n is errr----- %+v\n\n\n", Is(e1, e0))
 
@@ -152,10 +144,7 @@ func withErrorReturnNew(t *testing.T) {
 	// t.Logf("\n\n\n%+v\n\n\n", PrettyPrint(e3))
 	// t.Logf("\n\n\n%+v\n\n\n", Is(e3, e2))
 
-
-
 }
-
 
 func getMetaFromError(t *testing.T) {
 	e := E("test error", WithMeta("key1", "val1"))
@@ -180,7 +169,7 @@ func returnEmptyMeta(t *testing.T) {
 	}
 }
 
-func mergeMetaToError(t *testing.T) {	
+func mergeMetaToError(t *testing.T) {
 	err := E("test error")
 	m := WithMeta("metaKey1", "metaVal1")
 
@@ -196,8 +185,7 @@ func mergeMetaToError(t *testing.T) {
 	}
 }
 
-
-func mergeMetaToErrorExistingMeta(t *testing.T) {		
+func mergeMetaToErrorExistingMeta(t *testing.T) {
 	err := E("test error with meta", WithMeta("key1", "val1"))
 	m := WithMeta("metaKey1", "metaVal1")
 
@@ -215,7 +203,7 @@ func mergeMetaToErrorExistingMeta(t *testing.T) {
 	}
 }
 
-func mergeMetaToRegularError(t *testing.T) {	
+func mergeMetaToRegularError(t *testing.T) {
 	err := errors.New("regular error")
 	m := WithMeta("metaKey1", "metaVal1")
 
@@ -224,9 +212,9 @@ func mergeMetaToRegularError(t *testing.T) {
 		t.Fatalf("MergeMeta should fail when err is a regular error")
 	}
 }
- 
-func flattenAllErrors( t *testing.T) {
-	
+
+func flattenAllErrors(t *testing.T) {
+
 	// nil error
 	errs := Flatten(nil)
 
@@ -240,7 +228,7 @@ func flattenAllErrors( t *testing.T) {
 	e0 := errors.New("not goerror")
 	e1 := E("e1", e0, m1)
 	e2 := E("e2", e1, m2)
-	
+
 	errs = Flatten(e2)
 
 	for i, err := range errs {

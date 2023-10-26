@@ -18,5 +18,3 @@ func isError(t *testing.T) {
 		t.Fatalf("Errors should contain validationErr, got: %+v", err2)
 	}
 }
-
-

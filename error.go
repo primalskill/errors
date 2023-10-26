@@ -6,14 +6,14 @@ import (
 
 type Error struct {
 	withFlag error
-	err   error
-	Msg   string
-	Stack Stack
-	Meta  Meta
+	err      error
+	Msg      string `json:"msg"`
+	Stack    Stack  `json:"stack"`
+	Meta     Meta   `json:"meta"`
 }
 
 // parseArgTypes parses the arguments passed to the function
-func (err *Error) parseArgTypes(args ...interface{})  {
+func (err *Error) parseArgTypes(args ...interface{}) {
 	for _, arg := range args {
 		switch arg := arg.(type) {
 
@@ -33,8 +33,7 @@ func (err *Error) parseArgTypes(args ...interface{})  {
 	}
 }
 
-
-// E a new error and sets the required msg argument as the error message. Additional arguments like a Meta map or another error can be passed
+// E return a new error and sets the required msg argument as the error message. Additional arguments like a Meta map or another error can be passed
 // into the function that will be set on the error.
 func E(msg string, args ...interface{}) error {
 	e := &Error{}
@@ -49,7 +48,7 @@ func E(msg string, args ...interface{}) error {
 // With adds args to err if err is of type Error, othwerwise it creates a new error of type Error and adds args
 // on that error. Passing in a regular error (not errors.Error) to the err argument will convert the error to
 // errors.Error therefore trying to compare errors with Is() will return FALSE.
-func With(err error, args ...interface{}) error {	
+func With(err error, args ...interface{}) error {
 	e := &Error{}
 	ec, is := err.(*Error)
 
@@ -69,10 +68,10 @@ func With(err error, args ...interface{}) error {
 			for k, v := range ec.Meta {
 				e.Meta[k] = v
 			}
-		}		
+		}
 	}
 
-	// Set the withFlah to the original so the Is() and As() functions still have the correct behavior.
+	// Set the withFlag to the original so the Is() and As() functions still have the correct behavior.
 	e.withFlag = err
 
 	// Overwrite the stack to where With() was called, otherwise stack will point to where err was instantiated.
@@ -83,8 +82,6 @@ func With(err error, args ...interface{}) error {
 
 	return e
 }
-
-
 
 // GetMeta returns a Meta map or an empty Meta if the error doesn't contain a Meta or the error is not of type
 // errors.Error. The second returned argument is TRUE if the err has a Meta, FALSE otherwise.
@@ -97,7 +94,6 @@ func GetMeta(err error) (Meta, bool) {
 
 	return eerr.Meta, true
 }
-
 
 // MergeMeta will merge m to err.Meta if err is of type errors.Error and returns TRUE if the operation was succesful,
 // FALSE otherwise.
@@ -113,14 +109,12 @@ func MergeMeta(err error, m Meta) (error, bool) {
 		e.Meta = make(Meta, 1)
 	}
 
-
 	for k, v := range m {
 		e.Meta.Set(k, v)
 	}
 
 	return e, true
 }
-
 
 // Flatten returns a slice of Error from embedded err.
 func Flatten(err error) (ret []Error) {
@@ -145,14 +139,13 @@ func Flatten(err error) (ret []Error) {
 		var ee Error
 		ee.Msg = uErr.Error()
 		ee.err = uErr
-			
+
 		ret = append(ret, ee)
-		uErr = Unwrap(uErr)	
+		uErr = Unwrap(uErr)
 	}
 
 	return
 }
-
 
 func (e Error) Is(target error) bool {
 	if stderrors.Is(e.withFlag, target) {

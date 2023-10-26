@@ -43,12 +43,11 @@ func (e *Error) PrettyPrint() string {
 		if i < len(err) {
 			s.WriteString("\n")
 		}
-		
+
 	}
 
 	return s.String()
 }
-
 
 // String returns Meta in [key1:val1 key2:val2 ...] format and satisfies the fmt.Stringer interface.
 func (p Meta) String() string {
@@ -86,7 +85,7 @@ func (p *Stack) stackPrettyString(isSub bool) string {
 		pipe = "|- "
 	}
 
-	return fmt.Sprintf("\n%s%sStack: %s", padding, pipe, string(*p))	
+	return fmt.Sprintf("\n%s%sStack: %s", padding, pipe, string(*p))
 }
 
 func (p Meta) metaPrettyString(isSub bool) string {

@@ -35,12 +35,10 @@ func ExampleUnwrap() {
 	// Output: error 1
 }
 
-
 func ExamplePrettyPrint() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))
 	fmt.Printf("%s", errors.PrettyPrint(err))
 }
-
 
 func ExampleError_PrettyPrint() {
 	err := errors.E("my error", errors.WithMeta("key", "value"))
