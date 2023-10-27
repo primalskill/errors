@@ -9,7 +9,7 @@ import (
 func TestErrors(t *testing.T) {
 	t.Run("it should store msg", storeMsg)
 	t.Run("it should store meta", storeMeta)
-	t.Run("it should store stack", storeStack)
+	t.Run("it should store source", storeSource)
 	t.Run("it should wrap errors", wrapErrors)
 	t.Run("it should add args on existing error", mirrorErrors)
 	t.Run("M() should return a new error value ", mirrorErrorReturnNew)
@@ -39,12 +39,12 @@ func storeMeta(t *testing.T) {
 	}
 }
 
-func storeStack(t *testing.T) {
+func storeSource(t *testing.T) {
 	e := E("test error")
 	ee := e.(*Error)
 
-	if len(string(ee.Stack)) == 0 {
-		t.Fatalf("E() should store the stack, got empty string.")
+	if len(string(ee.Source)) == 0 {
+		t.Fatalf("E() should store the source, got empty string.")
 	}
 }
 

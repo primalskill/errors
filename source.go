@@ -12,12 +12,12 @@ var (
 	rootPath          = path.Dir(rootFile)
 )
 
-// Stack represents an error stack captuing the file path and line number where the error happened in the format
-// <file path>:<line nunmber>. A Stack is always attached to an error automatically.
-type Stack string
+// Source represents an error source capturing the file path and line number where the error happened in the format
+// <file path>:<line nunmber>. A Source is always attached to an error automatically.
+type Source string
 
-// getStack will get the file path, function name and line number where the error happened.
-func getStack() (s Stack) {
+// getSource will get the file path, function name and line number where the error happened.
+func getSource() (s Source) {
 	// Index 3 will show the calling function data
 	targetFrameIndex := 3
 
@@ -45,7 +45,7 @@ func getStack() (s Stack) {
 				sb.WriteString(":")
 				sb.WriteString(strconv.Itoa(frameCandidate.Line))
 
-				s = Stack(sb.String())
+				s = Source(sb.String())
 			}
 		}
 	}

@@ -30,7 +30,7 @@ func correctJSONPayload(t *testing.T) {
 		t.Fatalf("expected json marshal nil error, got: %s", err.Error())
 	}
 
-	jsonCmp := `{"err":[{"msg":"err2","stack":"json_test.go:23"},{"msg":"err1 error","stack":"json_test.go:22","meta":{"test":3445}},{"msg":"reg error 2: reg error 1"},{"msg":"reg error 1"}]}`
+	jsonCmp := `{"err":[{"msg":"err2","source":"json_test.go:23"},{"msg":"err1 error","source":"json_test.go:22","meta":{"test":3445}},{"msg":"reg error 2: reg error 1"},{"msg":"reg error 1"}]}`
 	if string(b) != jsonCmp {
 		t.Fatalf("json payload mismatch:\nexpected: %s\ngot: %s", jsonCmp, string(b))
 	}
@@ -45,7 +45,7 @@ func singleErrorJSONPayload(t *testing.T) {
 		t.Fatalf("expected json marshal nil error, got: %s", err.Error())
 	}
 
-	jsonCmp := `{"err":{"msg":"single","stack":"json_test.go:41"}}`
+	jsonCmp := `{"err":{"msg":"single","source":"json_test.go:41"}}`
 	if string(b) != jsonCmp {
 		t.Fatalf("json payload mismatch:\nexpected: %s\ngot: %s", jsonCmp, string(b))
 	}

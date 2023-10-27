@@ -8,7 +8,7 @@ type Error struct {
 	withFlag error
 	err      error
 	Msg      string `json:"msg"`
-	Stack    Stack  `json:"stack"`
+	Source   Source `json:"source"`
 	Meta     Meta   `json:"meta"`
 }
 
@@ -38,7 +38,7 @@ func (err *Error) parseArgTypes(args ...any) {
 func E(msg string, args ...any) error {
 	e := &Error{}
 	e.Msg = msg
-	e.Stack = getStack()
+	e.Source = getSource()
 
 	e.parseArgTypes(args...)
 
@@ -73,8 +73,8 @@ func M(err error, args ...any) error {
 	// Set the withFlag to the original so the Is() and As() functions still have the correct behavior.
 	e.withFlag = err
 
-	// Overwrite the stack to where With() was called, otherwise stack will point to where err was instantiated.
-	e.Stack = getStack()
+	// Overwrite the source to where M() was called, otherwise source will point to where err was instantiated.
+	e.Source = getSource()
 
 	// Parse the args too
 	e.parseArgTypes(args...)

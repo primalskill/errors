@@ -42,8 +42,8 @@ func marshalJSONErr(err Error) ([]byte, error) {
 	b = append(b, '{')
 	b = fmt.Appendf(b, "\"msg\":\"%s\"", err.Error())
 
-	if len(err.Stack) > 0 {
-		b = fmt.Appendf(b, ",\"stack\":\"%s\"", err.Stack)
+	if len(err.Source) > 0 {
+		b = fmt.Appendf(b, ",\"source\":\"%s\"", err.Source)
 	}
 
 	if len(err.Meta) > 0 {

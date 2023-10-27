@@ -37,7 +37,7 @@ func (e *Error) PrettyPrint() string {
 			s.WriteString(elem.Msg)
 		}
 
-		s.WriteString(elem.Stack.stackPrettyString(true))
+		s.WriteString(elem.Source.sourcePrettyString(true))
 		s.WriteString(elem.Meta.metaPrettyString(true))
 
 		if i < len(err) {
@@ -72,7 +72,7 @@ func (p Meta) String() string {
 	return ret.String()
 }
 
-func (p *Stack) stackPrettyString(isSub bool) string {
+func (p *Source) sourcePrettyString(isSub bool) string {
 	if len(string(*p)) == 0 {
 		return ""
 	}
@@ -85,7 +85,7 @@ func (p *Stack) stackPrettyString(isSub bool) string {
 		pipe = "|- "
 	}
 
-	return fmt.Sprintf("\n%s%sStack: %s", padding, pipe, string(*p))
+	return fmt.Sprintf("\n%s%sSource: %s", padding, pipe, string(*p))
 }
 
 func (p Meta) metaPrettyString(isSub bool) string {
