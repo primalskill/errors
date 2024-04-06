@@ -19,9 +19,11 @@ TESTREGEX := .
 # Running 'make cover' will create a test coverage report html file in the root of the source folder.
 COVERAGEREPORT := ${CURPATH}/coverage-report.html
 
-API_APP := main
-API_INPUT := ${CURPATH}/cmd/api/${API_APP}.go
-API_OUTPUT := /usr/local/bin/${API_APP}
+INPUT := ${CURPATH}/error.go
+
+.PHONY: lint
+lint:
+	golangci-lint run --config ./.golangci.yaml ./...
 
 .PHONY: update-deps-latest
 update-deps-latest:
@@ -33,6 +35,10 @@ update-deps:
 	go mod tidy
 	go get ./...
 
+.PHONY: clean
+clean:
+	go clean ${INPUT}
+
 .PHONY: format
 format:
 	gofmt -w ${CURPATH}
@@ -43,3 +49,5 @@ test: format
 	go clean -testcache
 	go test -coverprofile /tmp/cover.out -v -failfast -run ${TESTREGEX} ${TESTPATH}
 	go tool cover -html=/tmp/cover.out -o ${COVERAGEREPORT}
+	rm -rf /tmp/cover.out
+

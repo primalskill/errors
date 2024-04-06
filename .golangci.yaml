@@ -1,0 +1,53 @@
+---
+run:
+  timeout: 1m
+  issues-exit-code: 2
+  tests: false
+output:
+  sort-results: true
+issues:
+  max-same-issues: 0
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - cyclop
+    - dupl
+    - errname
+    - forcetypeassert
+    - gochecknoinits
+    - gocognit
+    - goimports
+    - gomoddirectives
+    - gosec
+    - misspell
+    - musttag
+    - nestif
+    - noctx
+    - revive
+    - stylecheck
+    - tagliatelle
+    - unconvert
+linters-settings:
+  gosimple:
+    checks:
+      - all
+      - '-S1002' # ignore implicit if conditions
+      - '-S1034'
+  cyclop:
+    max-complexity: 20
+    skip-tests: true
+  tagliatelle:
+    case:
+      rules:
+        json: goCamel
+  revive:
+    rules:
+      - name: receiver-naming
+        disabled: true
