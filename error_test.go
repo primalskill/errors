@@ -200,7 +200,7 @@ func mergeMetaToRegularError(t *testing.T) {
 	err := errors.New("regular error")
 	m := WithMeta("metaKey1", "metaVal1")
 
-	_, is := MergeMeta(err, m)
+	is, _ := MergeMeta(err, m)
 	if is == true {
 		t.Fatalf("MergeMeta should fail when err is a regular error")
 	}

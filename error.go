@@ -13,22 +13,22 @@ type Error struct {
 }
 
 // parseArgTypes parses the arguments passed to the function
-func (err *Error) parseArgTypes(args ...any) {
+func (e *Error) parseArgTypes(args ...any) {
 	for _, arg := range args {
 		switch arg := arg.(type) {
 
 		case Meta:
 			// Merge the meta into the existing map on the err
-			if len(err.Meta) == 0 {
-				err.Meta = arg
+			if len(e.Meta) == 0 {
+				e.Meta = arg
 			} else {
 				for k, v := range arg {
-					err.Meta.Set(k, v)
+					e.Meta.Set(k, v)
 				}
 			}
 
 		case error:
-			err.err = arg
+			e.err = arg
 		}
 	}
 }
@@ -99,14 +99,14 @@ func GetMeta(err error) (Meta, bool) {
 	return eerr.Meta, true
 }
 
-// MergeMeta will merge m to err.Meta if err is of type errors.Error and returns TRUE if the operation was succesful,
+// MergeMeta will merge m to err.Meta if err is of type errors.Error and returns TRUE if the operation was successful,
 // FALSE otherwise.
-func MergeMeta(err error, m Meta) (error, bool) {
+func MergeMeta(err error, m Meta) (bool, error) {
 	var e *Error
 
 	isError := As(err, &e)
 	if isError == false {
-		return err, false
+		return false, err
 	}
 
 	if e.Meta == nil {
@@ -117,7 +117,7 @@ func MergeMeta(err error, m Meta) (error, bool) {
 		e.Meta.Set(k, v)
 	}
 
-	return e, true
+	return true, e
 }
 
 // Flatten returns a slice of Error from embedded err.

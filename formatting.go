@@ -59,7 +59,12 @@ func (p Meta) String() string {
 	for k, v := range p {
 		ret.WriteString(k)
 		ret.WriteString(":")
-		ret.WriteString(v.(string))
+
+		str, can := v.(string)
+		if can == true {
+			ret.WriteString(str)
+		}
+
 		i++
 
 		if i < len(p) {

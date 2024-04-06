@@ -40,7 +40,10 @@ func WithMeta(firstKey string, args ...any) (m Meta) {
 			continue
 		}
 
-		m[args[i].(string)] = args[i+1]
+		strKey, can := args[i].(string)
+		if can == true {
+			m[strKey] = args[i+1]
+		}
 	}
 
 	return
