@@ -13,6 +13,13 @@ func ExampleE() {
 	// Output: this is an error
 }
 
+func ExampleM() {
+	err1 := errors.E("this is an error", errors.WithMeta("key1", "val1"))
+	err2 := errors.M(err1, errors.WithMeta("key2", "val2"))
+
+	fmt.Printf("%+v", errors.PrettyPrint(err2))
+}
+
 func ExampleE_meta() {
 
 	// err will carry a Meta map.
