@@ -44,7 +44,7 @@ format:
 	gofmt -w ${CURPATH}
 
 .PHONY: test
-test: format
+test: format lint
 	clear && printf '\e[3J'	
 	go clean -testcache
 	go test -coverprofile /tmp/cover.out -v -failfast -run ${TESTREGEX} ${TESTPATH}
