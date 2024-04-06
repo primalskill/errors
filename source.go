@@ -1,15 +1,9 @@
 package errors
 
 import (
-	"path"
 	"runtime"
 	"strconv"
 	"strings"
-)
-
-var (
-	_, rootFile, _, _ = runtime.Caller(0)
-	rootPath          = path.Dir(rootFile)
 )
 
 // Source represents an error source capturing the file path and line number where the error happened in the format
@@ -37,9 +31,6 @@ func getSource() (s Source) {
 				if len(filePath) == 0 {
 					filePath = "unknown"
 				}
-
-				filePath = strings.TrimPrefix(filePath, rootPath)
-				filePath = strings.TrimPrefix(filePath, "/")
 
 				sb.WriteString(filePath)
 				sb.WriteString(":")
