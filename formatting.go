@@ -60,13 +60,9 @@ func (p Meta) String() string {
 
 	i := 0
 	for k, v := range p {
-		str, ok := v.(string)
-		if ok == true {
-			b = fmt.Appendf(b, "%s:%s", k, str)
-		}
+		b = fmt.Appendf(b, "%s:%+v", k, v)
 
 		i++
-
 		if i < len(p) {
 			b = append(b, ' ')
 		}
