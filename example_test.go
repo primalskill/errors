@@ -2,6 +2,7 @@ package errors_test
 
 import (
 	"fmt"
+
 	"github.com/primalskill/errors"
 )
 
@@ -52,21 +53,20 @@ func ExampleError_PrettyPrint() {
 func ExampleWithMeta() {
 	// Valid
 	mValid := errors.WithMeta("key1", 158, "key2", "some value", "anotherKey", true)
-
 	fmt.Printf("%#v", mValid)
 
-	// Invalid Outputs
-	// errors.WithMeta(15) <-- results in compile error
-	// errors.WithMeta("noValueKey") <-- returns empty Meta map because there is no value added to noValueKey
-	// errors.WithMeta("key1", "value 1", 16, "key3", "key4", "some value") <-- skips 16 and key3 pairs because 16 is int and not string.
-	// errors.WithMeta("key1", "val1", 10, "val2", "key3") <-- skips 10 and val2 pairs, output: [key1:val1 key3:]
+	// no value defined it will add !BADVALUE to noValueKey
+	mBadValue := errors.WithMeta("noValueKey")
+	fmt.Printf("\n%#v", mBadValue)
 
-	// Output: errors.Meta{"anotherKey":true, "key1":158, "key2":"some value"}
-}
+	// 16 is not a string for a key it will replace it with !BADKEY2
+	mBadKey := errors.WithMeta("key1", "val1", 16, "val2", "key3", "val3")
+	fmt.Printf("\n%#v", mBadKey)
 
-func ExampleWithMeta_emptyValue() {
-	mValid := errors.WithMeta("key1", "value1", "key2")
-	fmt.Printf("%#v", mValid)
+	// 10 is not a string for a key it will replace it with !BADKEY2
+	// key3 doesn't have a value it will add !BADVALUE to key3
+	mBadKeyValue := errors.WithMeta("key1", "val1", 10, "val2", "key3")
+	fmt.Printf("\n%#v", mBadKeyValue)
 }
 
 func ExampleMeta_Merge() {
