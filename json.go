@@ -2,9 +2,10 @@ package errors
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
+// MarshalJSON implements json.Marshaler for Error. Need to use a workaround for encoding because it will create
+// an infinite loop if json.Marshal() is used in MarshalJSON().
 func (e *Error) MarshalJSON() ([]byte, error) {
 	errs := Flatten(e)
 
@@ -38,24 +39,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 }
 
 func marshalJSONErr(err Error) ([]byte, error) {
-	var b []byte
-	b = append(b, '{')
-	b = fmt.Appendf(b, "\"msg\":\"%s\"", err.Error())
+	b, merr := json.Marshal(err)
 
-	if len(err.Source) > 0 {
-		b = fmt.Appendf(b, ",\"source\":\"%s\"", err.Source)
-	}
-
-	if len(err.Meta) > 0 {
-		m, merr := json.Marshal(err.Meta)
-		if merr != nil {
-			return b, merr
-		}
-
-		b = fmt.Appendf(b, ",\"meta\":%s", m)
-	}
-
-	b = append(b, '}')
-
-	return b, nil
+	return b, merr
 }

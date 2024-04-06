@@ -8,8 +8,8 @@ type Error struct {
 	withFlag error
 	err      error
 	Msg      string `json:"msg"`
-	Source   Source `json:"source"`
-	Meta     Meta   `json:"meta"`
+	Source   Source `json:"source,omitempty"`
+	Meta     Meta   `json:"meta,omitempty"`
 }
 
 // parseArgTypes parses the arguments passed to the function
