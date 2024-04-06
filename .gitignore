@@ -1,2 +1,7 @@
+# Go work file
+go.work
+
+# Misc. dev. files
+TODO.md
 cover.out
 coverage-report.html
