@@ -7,6 +7,9 @@ import (
 // Meta holds extra meta data around an error. Try adding simple values to the Meta map. Key order is not guaranteed.
 type Meta map[string]any
 
+// WithMeta accepts an even number of arguments representing key/value pairs. The first argument "firstKey" forces
+// the compiler to fail if the first argument is not a string. In "args" every odd argument must be of type string
+// which will be used as the Meta map key. If an odd argument is not a string that pair will be skipped.
 func WithMeta(firstKey string, args ...any) Meta {
 	m := make(Meta, len(args)+1)
 
@@ -46,48 +49,6 @@ func WithMeta(firstKey string, args ...any) Meta {
 	}
 
 	return m
-}
-
-// WithMeta accepts an even number of arguments representing key/value pairs. The first argument "firstKey" forces
-// the compiler to fail if the first argument is not a string. In "args" every odd argument must be of type string
-// which will be used as the Meta map key. If an odd argument is not a string that pair will be skipped.
-func WithMeta_(firstKey string, args ...any) (m Meta) {
-	m = make(map[string]any, len(args)+1)
-
-	// Set the firstKey to the first value
-	if len(args) == 0 {
-		m[firstKey] = ""
-
-		return
-	}
-
-	m[firstKey] = args[0]
-
-	if len(args) == 1 {
-		return
-	}
-
-	args = args[1:]
-
-	// If args is not even add an empty string as a last value to make it even
-	if len(args)%2 != 0 {
-		args = append(args, "")
-	}
-
-	for i := 0; i < len(args); i = i + 2 {
-		// Skip if the key is not string
-		t := fmt.Sprintf("%T", args[i])
-		if t != "string" {
-			continue
-		}
-
-		strKey, can := args[i].(string)
-		if can == true {
-			m[strKey] = args[i+1]
-		}
-	}
-
-	return
 }
 
 // Set will set key to value and returns Meta. Same keys will be overwritten.
