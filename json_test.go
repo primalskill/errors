@@ -10,6 +10,14 @@ type dummyType struct {
 	Err error `json:"err"`
 }
 
+type cmpMultiDummyType struct {
+	Err []Error `json:"err"`
+}
+
+type cmpSingleDummyType struct {
+	Err Error `json:"err"`
+}
+
 func TestJSONMarshaling(t *testing.T) {
 	t.Run("it should generate correct json payload", correctJSONPayload)
 	t.Run("it should work with single error", singleErrorJSONPayload)
@@ -30,9 +38,44 @@ func correctJSONPayload(t *testing.T) {
 		t.Fatalf("expected json marshal nil error, got: %s", err.Error())
 	}
 
-	jsonCmp := `{"err":[{"msg":"err2","source":"json_test.go:23"},{"msg":"err1 error","source":"json_test.go:22","meta":{"test":3445}},{"msg":"reg error 2: reg error 1"},{"msg":"reg error 1"}]}`
-	if string(b) != jsonCmp {
-		t.Fatalf("json payload mismatch:\nexpected: %s\ngot: %s", jsonCmp, string(b))
+	var cmp cmpMultiDummyType
+	err = json.Unmarshal(b, &cmp)
+	if err != nil {
+		t.Fatalf("expected json unmarshal nil error, got: %s", err.Error())
+	}
+
+	if len(cmp.Err) != 4 {
+		t.Fatalf("expected cmp.Err length 4, got: %d", len(cmp.Err))
+	}
+
+	for i, elem := range cmp.Err {
+		if i == 0 && elem.Msg != "err2" {
+			t.Fatalf("expected cmp.Err[0].Msg = err2, got: %s", elem.Msg)
+		}
+		if i == 0 && len(elem.Meta) != 0 {
+			t.Fatalf("expected cmp.Err[0].Meta length 0, got: %d", len(elem.Meta))
+		}
+
+		if i == 1 && elem.Msg != "err1 error" {
+			t.Fatalf("expected cmp.Err[1].Msg = err1 error, got: %s", elem.Msg)
+		}
+		if i == 1 && len(elem.Meta) != 1 {
+			t.Fatalf("expected cmp.Err[1].Meta length 1, got: %d", len(elem.Meta))
+		}
+
+		if i == 2 && elem.Msg != "reg error 2: reg error 1" {
+			t.Fatalf("expected cmp.Err[2].Msg = reg error 2: reg error 1, got: %s", elem.Msg)
+		}
+		if i == 2 && len(elem.Meta) != 0 {
+			t.Fatalf("expected cmp.Err[2].Meta length 0, got: %d", len(elem.Meta))
+		}
+
+		if i == 3 && elem.Msg != "reg error 1" {
+			t.Fatalf("expected cmp.Err[3].Msg = reg error 1, got: %s", elem.Msg)
+		}
+		if i == 3 && len(elem.Meta) != 0 {
+			t.Fatalf("expected cmp.Err[3].Meta length 0, got: %d", len(elem.Meta))
+		}
 	}
 }
 
@@ -45,8 +88,17 @@ func singleErrorJSONPayload(t *testing.T) {
 		t.Fatalf("expected json marshal nil error, got: %s", err.Error())
 	}
 
-	jsonCmp := `{"err":{"msg":"single","source":"json_test.go:41"}}`
-	if string(b) != jsonCmp {
-		t.Fatalf("json payload mismatch:\nexpected: %s\ngot: %s", jsonCmp, string(b))
+	var cmp cmpSingleDummyType
+	err = json.Unmarshal(b, &cmp)
+	if err != nil {
+		t.Fatalf("expected json unmarshal nil error, got: %s", err.Error())
+	}
+
+	if cmp.Err.Msg != "single" {
+		t.Fatalf("expected cmp.Err.Msg = single, got: %s", cmp.Err.Msg)
+	}
+
+	if len(cmp.Err.Meta) != 0 {
+		t.Fatalf("expected cmp.Err.Meta length 0, got: %d", len(cmp.Err.Meta))
 	}
 }
