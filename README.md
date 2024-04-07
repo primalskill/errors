@@ -98,7 +98,16 @@ func main() {
   // - err2 overwrites err1 source location to correctly show the location where err2 was executed
   err2 := errors.M(err1, errors.WithMeta("key2", "val2"))
 
-  fmt.Printf("%+v", errors.PrettyPrint(err2))
+  fmt.Printf("%+v", errors.PrettyPrint(err2)) // PrettyPrint should only be used in development to have a nicer output
+  /* 
+  output:
+
+  this is an error
+     |- Source : /goprograms/errors/example_test.go:20
+    |- Meta :
+      |- key1 : val1
+      |- key2 : val2
+  */
 }
 ```
 
